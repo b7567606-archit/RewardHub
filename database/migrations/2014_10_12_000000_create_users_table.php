@@ -13,8 +13,12 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
-            $table->string('country_code')->nullable();
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
+            $table->string('country')->nullable();
+            $table->string('state')->nullable();
+            $table->string('city')->nullable();
+            $table->string('age')->nullable();
             $table->string('number')->nullable();
             $table->string('otp')->nullable();
             $table->string('email')->unique()->nullable();
@@ -22,8 +26,12 @@ return new class extends Migration
             $table->string('image' , 2555)->nullable();
             $table->string('dob')->nullable();
             $table->string('gender')->nullable();
-            $table->string('token')->nullable();
+            $table->string('token' , 2555)->nullable();
+            $table->string('register')->nullable();
+            $table->string('reg_id' , 1555)->nullable();
             $table->string('active_status')->nullable();
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
             $table->timestamp('email_verified_at')->nullable(); 
             $table->rememberToken();
             $table->timestamps();
