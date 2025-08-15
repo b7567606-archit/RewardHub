@@ -22,6 +22,10 @@ class ApiController extends Controller
         $this->users = $users;
     }
 
+    public function check(){
+        echo"Wroking";
+    }
+
     public function one(Request $request)
     {
         try {
