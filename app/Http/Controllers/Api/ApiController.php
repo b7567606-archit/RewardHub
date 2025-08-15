@@ -22,6 +22,13 @@ class ApiController extends Controller
         $this->users = $users;
     }
 
+    public function check(){
+        return response()->json([
+            'success' => true,
+            'message' => 'API is working fine',
+        ], 200);
+    }
+
     public function one(Request $request)
     {
         try {
