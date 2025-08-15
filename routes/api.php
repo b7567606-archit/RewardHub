@@ -19,7 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
+  
 Route::controller(ApiController::class)->group(function(){
     Route::any('user-register' , 'one');
     Route::any('check' , 'check');
