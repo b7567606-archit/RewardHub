@@ -23,12 +23,12 @@ return new class extends Migration
             $table->string('otp')->nullable();
             $table->string('email')->unique()->nullable();
             $table->string('password')->nullable();
-            $table->string('image' , 2555)->nullable();
+            $table->text('image')->nullable();
             $table->string('dob')->nullable();
             $table->string('gender')->nullable();
-            $table->string('token' , 2555)->nullable();
+            $table->text('token')->nullable();
             $table->string('register')->nullable();
-            $table->string('reg_id' , 1555)->nullable();
+            $table->text('reg_id')->nullable();
             $table->string('active_status')->nullable();
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
