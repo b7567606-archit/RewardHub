@@ -392,6 +392,39 @@ class ApiController extends Controller
         }
     }
 
+    public function nine(Request $request)
+    {
+        try {
+            // Ensure the method is GET
+            if (!$request->isMethod('get')) {
+                return response()->json(['message' => 'Invalid Method'], 405);
+            }
+
+            // Fetch all surveys
+            $surveys = $this->survey->get();
+
+            // Decode survey_data JSON into array
+            $surveys->transform(function ($survey) {
+                $survey->survey_data = json_decode($survey->survey_data, true);
+                return $survey;
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Survey data retrieved successfully',
+                'data'    => $surveys,
+            ], 200);
+
+        } catch (\Exception $ex) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred',
+                'error'   => $ex->getMessage(),
+            ], 500);
+        }
+    }
+
+
 }
 
      
