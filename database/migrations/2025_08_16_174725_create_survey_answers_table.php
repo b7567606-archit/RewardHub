@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('survey_answers', function (Blueprint $table) {
             $table->id()->nullable();
             $table->string('survey_id')->nullable();
+            $table->string('user_id')->nullable();
             $table->string('survey_answer_data', 2555)->nullable();
             $table->timestamps();
         });

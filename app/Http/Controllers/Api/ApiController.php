@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Survey;
+use App\Models\SurveyAnswer;
 use App\Traits\ImageUpload;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -18,11 +19,13 @@ class ApiController extends Controller
     protected $res;
     protected $users;
     protected $survey;
+    protected $surveyAnswer;
 
-    public function __construct(Request $res , User $users , Survey $survey){
+    public function __construct(Request $res , User $users , Survey $survey , SurveyAnswer $surveyAnswer){
         $this->res = $res;
         $this->users = $users;
         $this->survey = $survey;
+        $this->surveyAnswer = $surveyAnswer;
     }
 
     public function check(){
@@ -423,6 +426,57 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
+    public function ten(Request $request)
+    {
+        try {
+            // Ensure method is POST
+            if (!$request->isMethod('post')) {
+                return response()->json(['message' => 'Invalid Method'], 405);
+            }
+
+            // Validate incoming request
+            $validated = $request->validate([
+                'survey_id'          => 'required',
+                'user_id'            => 'required',
+                'survey_answer_data' => 'required|array',
+            ]);
+
+            // Find survey
+            $survey = $this->survey->find($validated['survey_id']);
+            if (!$survey) {
+                return response()->json(['success' => false, 'message' => 'Survey not found'], 404);
+            }
+
+            // --- Step 1: Update Survey table with user_id list ---
+            $userIds = $survey->user_id ? json_decode($survey->user_id, true) : [];
+            if (!in_array($validated['user_id'], $userIds)) {
+                $userIds[] = $validated['user_id'];
+            }
+            $survey->user_id = json_encode($userIds);
+            $survey->save();
+
+            // --- Step 2: Save survey answers in SurveyAnswer table ---
+            $this->surveyAnswer->create([
+                'survey_id'          => $validated['survey_id'],
+                'user_id'            => $validated['user_id'],
+                'survey_answer_data' => json_encode($validated['survey_answer_data']),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Survey answer submitted successfully',
+            ], 200);
+
+        } catch (\Exception $ex) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred',
+                'error'   => $ex->getMessage(),
+            ], 500);
+        }
+    }
+
 
 
 }
