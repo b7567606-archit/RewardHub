@@ -29,4 +29,8 @@ Route::controller(ApiController::class)->group(function(){
     Route::any('get-profile' , 'four');
     Route::any('change-password' , 'six');
     Route::any('logout-user' , 'seven');
+
+    #post the survey data
+    Route::any('post-survey-data' , 'eight');
+    Route::any('get-survey-data' , 'nine');
 });

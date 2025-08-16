@@ -349,6 +349,23 @@ class ApiController extends Controller
         }
     }
 
+    public function eight(Request $request){
+        try{
+
+             // Ensure the method is POST
+            if (!$request->isMethod('post')) {
+                return response()->json(['message' => 'Invalid Method'], 405);
+            }
+
+            
+        }catch (\Exception $ex) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred',
+                'error'   => $ex->getMessage(),
+            ], 500);
+        }
+    }
 }
 
      
