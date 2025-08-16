@@ -35,10 +35,7 @@ class ApiController extends Controller
             }
 
             // Validate incoming request data
-            $data = $request->only([
-                'firstName', 'lastName', 'email', 'number',
-                'country', 'state', 'city', 'age', 'password'
-            ]);
+            $data = $request->only(['id', 'firstName', 'lastName', 'email', 'number', 'country', 'state', 'city', 'age', 'password']);
             
             // Check if user already exists by email or number
             $existing = $this->users
@@ -53,9 +50,10 @@ class ApiController extends Controller
                 ], 409); // 409 Conflict is more appropriate
             }
 
+            $id = isset($data['id']) ? $data['id'] : null;
             // Create new user
             $user = $this->users->create([
-                'id' => $data['id'],
+                'id' => $id,
                 'first_name' => $data['firstName'],
                 'last_name'  => $data['lastName'],
                 'email'      => $data['email'],
