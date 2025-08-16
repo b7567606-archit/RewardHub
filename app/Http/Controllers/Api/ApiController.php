@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Survey;
 use App\Traits\ImageUpload;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -16,10 +17,12 @@ class ApiController extends Controller
     use ImageUpload;
     protected $res;
     protected $users;
+    protected $survey;
 
-    public function __construct(Request $res , User $users){
+    public function __construct(Request $res , User $users , Survey $survey){
         $this->res = $res;
         $this->users = $users;
+        $this->survey = $survey;
     }
 
     public function check(){
@@ -349,16 +352,38 @@ class ApiController extends Controller
         }
     }
 
-    public function eight(Request $request){
-        try{
-
-             // Ensure the method is POST
+    public function eight(Request $request)
+    {
+        try {
+            // Ensure the method is POST
             if (!$request->isMethod('post')) {
                 return response()->json(['message' => 'Invalid Method'], 405);
             }
 
-            
-        }catch (\Exception $ex) {
+            $survey_data = $request->survey_data;
+
+            // Ensure options are arrays, not strings
+            $formatted = [];
+            foreach ($survey_data as $item) {
+                $formatted[] = [
+                    'question' => $item['question'],
+                    'options'  => is_string($item['options']) 
+                                    ? json_decode($item['options'], true) 
+                                    : $item['options'],
+                ];
+            }
+
+            // Save in DB as JSON
+            $this->survey->create([
+                'survey_data' => json_encode($formatted),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Survey data posted successfully',
+            ], 200);
+
+        } catch (\Exception $ex) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred',
@@ -366,6 +391,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
 }
 
      
