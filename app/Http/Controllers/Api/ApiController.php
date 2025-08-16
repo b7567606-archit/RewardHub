@@ -163,30 +163,33 @@ class ApiController extends Controller
                 ], 200);
             }
 
+            // Collect update data
+            $updateData = [];
+
+            // Handle image upload
             if ($request->hasFile('image')) {
                 if ($user->image && file_exists(public_path($user->image))) {
                     unlink(public_path($user->image));
                 }
 
                 $imagePath = $this->upload($request->file('image'), 'userImages');
-                $updateData = ['image' => $imagePath];
+                $updateData['image'] = $imagePath;
             }
 
+            // Handle other fields
             $data = $request->only([
                 'firstName', 'lastName', 'email', 'number',
                 'country', 'state', 'city', 'age',
             ]);
 
-            $updateData = [
-                'first_name' => $data['firstName'] ?? $user->first_name,
-                'last_name'  => $data['lastName'] ?? $user->last_name,
-                'email'      => $data['email'] ?? $user->email,
-                'number'     => $data['number'] ?? $user->number,
-                'country'    => $data['country'] ?? $user->country,
-                'state'      => $data['state'] ?? $user->state,
-                'city'       => $data['city'] ?? $user->city,
-                'age'        => $data['age'] ?? $user->age,
-            ];
+            $updateData['first_name'] = $data['firstName'] ?? $user->first_name;
+            $updateData['last_name']  = $data['lastName'] ?? $user->last_name;
+            $updateData['email']      = $data['email'] ?? $user->email;
+            $updateData['number']     = $data['number'] ?? $user->number;
+            $updateData['country']    = $data['country'] ?? $user->country;
+            $updateData['state']      = $data['state'] ?? $user->state;
+            $updateData['city']       = $data['city'] ?? $user->city;
+            $updateData['age']        = $data['age'] ?? $user->age;
 
             // Update user record
             $user->update($updateData);
@@ -204,6 +207,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
 
     public function four(){
         try{
