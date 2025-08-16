@@ -40,7 +40,6 @@ class ApiController extends Controller
             // Check if user already exists by email or number
             $existing = $this->users
                 ->where('email', $data['email'])
-                ->orWhere('number', $data['number'])
                 ->first();
 
             if ($existing) {
