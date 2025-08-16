@@ -363,6 +363,7 @@ class ApiController extends Controller
                 return response()->json(['message' => 'Invalid Method'], 405);
             }
 
+            
             $survey_data = $request->survey_data;
 
             // Ensure options are arrays, not strings
@@ -435,11 +436,21 @@ class ApiController extends Controller
                 return response()->json(['message' => 'Invalid Method'], 405);
             }
 
+            // Get token from headers
+            $token = $request->header('token');
+            $user = $this->users->where('token', $token)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid or missing token',
+                ], 401);
+            }
+
             // Validate incoming request
             $validated = $request->validate([
                 'survey_id'          => 'required',
-                'user_id'            => 'required',
-                'survey_answer_data' => 'required|array',
+                'survey_answer_data' => 'required',
             ]);
 
             // Find survey
@@ -450,8 +461,8 @@ class ApiController extends Controller
 
             // --- Step 1: Update Survey table with user_id list ---
             $userIds = $survey->user_id ? json_decode($survey->user_id, true) : [];
-            if (!in_array($validated['user_id'], $userIds)) {
-                $userIds[] = $validated['user_id'];
+            if (!in_array($user->id, $userIds)) {
+                $userIds[] = $user->id;
             }
             $survey->user_id = json_encode($userIds);
             $survey->save();
@@ -459,7 +470,7 @@ class ApiController extends Controller
             // --- Step 2: Save survey answers in SurveyAnswer table ---
             $this->surveyAnswer->create([
                 'survey_id'          => $validated['survey_id'],
-                'user_id'            => $validated['user_id'],
+                'user_id'            => $user->id,
                 'survey_answer_data' => json_encode($validated['survey_answer_data']),
             ]);
 
@@ -476,6 +487,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
 
 
 
