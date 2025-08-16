@@ -47,7 +47,7 @@ class ApiController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'User already registered',
-                ], 409); // 409 Conflict is more appropriate
+                ], 200); // 409 Conflict is more appropriate
             }
 
             $id = isset($data['id']) ? $data['id'] : null;
@@ -81,7 +81,7 @@ class ApiController extends Controller
                 'message' => 'Successfully registered and logged in',
                 'user_id' => $user->id,
                 'token'   => $token,
-            ], 201);
+            ], 200);
 
         } catch (\Exception $ex) {
             return response()->json([
@@ -133,7 +133,7 @@ class ApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials',
-            ], 401);
+            ], 200);
 
         } catch (\Exception $ex) {
             return response()->json([
@@ -160,7 +160,7 @@ class ApiController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'User not found or invalid token',
-                ], 404);
+                ], 200);
             }
 
             if ($request->hasFile('image')) {
@@ -223,7 +223,7 @@ class ApiController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'User not registered',
-                ], 409); // 409 Conflict is more appropriate
+                ], 200); // 409 Conflict is more appropriate
             }
             else{
                 return response()->json([
@@ -262,7 +262,7 @@ class ApiController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'User not found or invalid token',
-                ], 404);
+                ], 200);
             }
 
             // Get passwords from request
@@ -275,7 +275,7 @@ class ApiController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Old password is incorrect',
-                ], 401);
+                ], 200);
             }
 
             // Check if new and confirm passwords match
@@ -283,7 +283,7 @@ class ApiController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'New password and confirm password do not match',
-                ], 422);
+                ], 200);
             }
 
             // Update the user's password
@@ -322,7 +322,7 @@ class ApiController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'User not found or invalid token',
-                ], 404);
+                ], 200);
             }
 
             // Invalidate token (remove from DB)
