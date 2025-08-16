@@ -169,9 +169,9 @@ class ApiController extends Controller
 
             // Handle image upload
             if ($request->hasFile('image')) {
-                if ($user->image && file_exists(public_path($user->image))) {
-                    unlink(public_path($user->image));
-                }
+                // if ($user->image && file_exists(public_path($user->image))) {
+                //     unlink(public_path($user->image));
+                // }
 
                 $imagePath = $this->upload($request->file('image'), 'userImages');
                 $updateData['image'] = $imagePath;
