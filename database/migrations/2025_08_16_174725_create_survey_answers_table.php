@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('survey_answers', function (Blueprint $table) {
-            $table->id();
+            $table->id()->nullable();
+            $table->string('survey_id')->nullable();
+            $table->string('survey_answer_data', 2555)->nullable();
             $table->timestamps();
         });
     }
