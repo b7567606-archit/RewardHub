@@ -39,7 +39,7 @@ class ApiController extends Controller
                 'firstName', 'lastName', 'email', 'number',
                 'country', 'state', 'city', 'age', 'password'
             ]);
-
+            
             // Check if user already exists by email or number
             $existing = $this->users
                 ->where('email', $data['email'])
@@ -55,6 +55,7 @@ class ApiController extends Controller
 
             // Create new user
             $user = $this->users->create([
+                'id' => $data['id'],
                 'first_name' => $data['firstName'],
                 'last_name'  => $data['lastName'],
                 'email'      => $data['email'],
