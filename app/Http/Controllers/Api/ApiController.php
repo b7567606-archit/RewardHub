@@ -404,19 +404,44 @@ class ApiController extends Controller
                 return response()->json(['message' => 'Invalid Method'], 405);
             }
 
-            // Fetch all surveys
-            $surveys = $this->survey->get();
+            // Get token from headers
+            $token = $request->header('token');
+            $user = $this->users->where('token', $token)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid or missing token',
+                ], 401);
+            }
+
+            // Fetch surveys ordered by latest first
+            $surveys = $this->survey->orderBy('id', 'desc')->get();
+
+            // Filter surveys that the user has not filled
+            $filtered = $surveys->filter(function ($survey) use ($user) {
+                $userIds = $survey->user_id ? json_decode($survey->user_id, true) : [];
+                return !in_array($user->id, $userIds);
+            });
+
+            // Take only the latest single survey
+            $latestSurvey = $filtered->first();
+
+            if (!$latestSurvey) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'No new surveys available',
+                    'data'    => null,
+                ], 200);
+            }
 
             // Decode survey_data JSON into array
-            $surveys->transform(function ($survey) {
-                $survey->survey_data = json_decode($survey->survey_data, true);
-                return $survey;
-            });
+            $latestSurvey->survey_data = json_decode($latestSurvey->survey_data, true);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Survey data retrieved successfully',
-                'data'    => $surveys,
+                'data'    => $latestSurvey,
             ], 200);
 
         } catch (\Exception $ex) {
@@ -427,6 +452,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
 
     public function ten(Request $request)
     {
