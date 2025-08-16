@@ -34,53 +34,54 @@ class ApiController extends Controller
                 return response()->json(['message' => 'Invalid Method'], 405);
             }
 
-            // Validate incoming request data
-            $data = $request->only(['id', 'firstName', 'lastName', 'email', 'number', 'country', 'state', 'city', 'age', 'password']);
-            
-            // Check if user already exists by email or number
-            $existing = $this->users
-                ->where('email', $data['email'])
-                ->first();
-
-            if ($existing) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User already registered',
-                ], 200); // 409 Conflict is more appropriate
-            }
-
-            $id = isset($data['id']) ? $data['id'] : null;
-            // Create new user
-            $user = $this->users->create([
-                'id' => $id,
-                'first_name' => $data['firstName'],
-                'last_name'  => $data['lastName'],
-                'email'      => $data['email'],
-                'number'     => $data['number'],
-                'country'    => $data['country'] ?? null,
-                'state'      => $data['state'],
-                'city'       => $data['city'],
-                'age'        => $data['age'],
-                'password'   => Hash::make($data['password']),
+            // Validate input (basic, no unique rule because we check manually)
+            $validated = $request->validate([
+                'firstName' => 'required|string|max:255',
+                'lastName'  => 'required|string|max:255',
+                'email'     => 'required|email',
+                'number'    => 'required|string',
+                'country'   => 'nullable|string|max:255',
+                'state'     => 'nullable|string|max:255',
+                'city'      => 'nullable|string|max:255',
+                'age'       => 'nullable|integer|min:1',
+                'password'  => 'required|string|min:6',
             ]);
 
-            // Log the user in
-            Auth::login($user);
+            // 🔎 Check if email already exists
+            if ($this->users->where('email', $validated['email'])->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User already registered with this email',
+                ], 200);
+            }
+
+            // Create new user
+            $user = $this->users->create([
+                'first_name' => $validated['firstName'],
+                'last_name'  => $validated['lastName'],
+                'email'      => $validated['email'],
+                'number'     => $validated['number'],
+                'country'    => $validated['country'] ?? null,
+                'state'      => $validated['state'] ?? null,
+                'city'       => $validated['city'] ?? null,
+                'age'        => $validated['age'] ?? null,
+                'password'   => Hash::make($validated['password']),
+            ]);
 
             // Generate API token
             $token = $user->createToken('API Token')->accessToken;
 
-            // Optionally save token to database (not recommended unless necessary)
+            // Save status & token
             $user->active_status = '1';
             $user->token = $token;
             $user->save();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Successfully registered and logged in',
+                'message' => 'Successfully registered',
                 'user_id' => $user->id,
                 'token'   => $token,
-            ], 200);
+            ], 201);
 
         } catch (\Exception $ex) {
             return response()->json([
@@ -90,6 +91,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
 
     public function two(Request $request)
     {
