@@ -215,7 +215,7 @@ class ApiController extends Controller
 
             $token = $this->res->header('token');
 
-            $existing = $this->users->select('first_name' ,'last_name' ,'email' ,'number' ,'country' ,'state' ,'city' ,'age')
+            $existing = $this->users->select('first_name' ,'last_name' ,'email' ,'number' ,'country' ,'state' ,'city' ,'age' , 'image')
                 ->where('token', $token)
                 ->first();
 
