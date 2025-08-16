@@ -36,7 +36,7 @@ class ApiController extends Controller
 
             // Validate incoming request data
             $data = $request->only([
-                'id' ,'firstName', 'lastName', 'email', 'number',
+                'firstName', 'lastName', 'email', 'number',
                 'country', 'state', 'city', 'age', 'password'
             ]);
             
