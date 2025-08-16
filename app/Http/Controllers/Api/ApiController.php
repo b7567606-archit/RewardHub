@@ -169,7 +169,7 @@ class ApiController extends Controller
                 }
 
                 $imagePath = $this->upload($request->file('image'), 'userImages');
-                $user->image = $imagePath;
+                $updateData = ['image' => $imagePath];
             }
 
             $data = $request->only([
