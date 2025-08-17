@@ -612,10 +612,12 @@ class ApiController extends Controller
     public function thirteen(Request $request)
     {
         try {
+            // ✅ Ensure method is POST
             if (!$request->isMethod('post')) {
                 return response()->json(['message' => 'Invalid Method'], 405);
             }
 
+            // ✅ Get token from headers
             $token = $request->header('token');
             $user = $this->users->where('token', $token)->first();
 
@@ -627,38 +629,33 @@ class ApiController extends Controller
             }
 
             $user_id = $user->id;
-            $spin_id = $request->input('spin_id');
-            $amount  = $request->input('amount');
+            $spin_id = $request->spin_id;
+            $amount  = $request->amount;
 
+            // ✅ Save spin data
             $create = $this->userSpinData->create([
                 'user_id' => $user_id,
                 'spin_id' => $spin_id,
                 'amount'  => $amount,
             ]);
 
-            if ($spin_id == '1' || $spin_id == '2' || $spin_id == '7') {
+            // ✅ If spin_id is 1, 2, or 7 → Add money to wallet
+            if (in_array($spin_id, [1, 2, 7])) {
+                // Get spin data (in case amount is stored in spins table)
                 $spin = $this->spin->where('id', $spin_id)->first();
-                if ($spin) {
-                    $amountToAdd = $spin->amount;
-                    $newBalance = $user->wallet + $amountToAdd;
 
-                    $this->users->where('id', $user_id)->update([
-                        'wallet' => $newBalance,
-                    ]);
+                $moneyToAdd = $spin ? $spin->amount : $amount;
 
-                    $user->wallet = $newBalance;
-                }
+                // Increment wallet safely
+                $user->wallet = $user->wallet + $moneyToAdd;
+                $user->save(); // 🚀 Without this, wallet won’t update
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Spin claim successfully',
-                'data'    => [
-                    'spin'   => $create,
-                    'wallet' => $user->wallet,
-                    'newBalance' => $newBalance,
-                    'amountToAdd' => $amountToAdd,
-                ],
+                'data'    => $create,
+                'wallet'  => $user->wallet, // return updated wallet
             ], 200);
 
         } catch (\Exception $ex) {
@@ -669,6 +666,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
 
 
 
