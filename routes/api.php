@@ -35,7 +35,7 @@ Route::controller(ApiController::class)->group(function(){
     Route::any('get-survey-data' , 'nine');
     Route::any('user-send-survey-data' , 'ten');
     Route::any('see-user-earnings' , 'eleven');
-    Route::any('spin-details', 'twelve');
+    Route::any('spin-details', 'twelve');    
     Route::any('post-spin', 'thirteen');
     Route::any('check-spin-limit', 'fourteen');
 

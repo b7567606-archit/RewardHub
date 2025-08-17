@@ -669,7 +669,7 @@ class ApiController extends Controller
     }
 
     public function fourteen(Request $request){
-        try {
+        try {     
             if (!$request->isMethod('GET')) {
                 return response()->json(['message' => 'Invalid Method'], 405);
             }
