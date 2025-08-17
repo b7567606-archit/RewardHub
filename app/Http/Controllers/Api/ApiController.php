@@ -528,8 +528,8 @@ class ApiController extends Controller
     public function eleven(){
         try{
 
-              // Ensure method is POST
-            if (!$request->isMethod('post')) {
+              // Ensure method is get
+            if (!$request->isMethod('get')) {
                 return response()->json(['message' => 'Invalid Method'], 405);
             }
 
