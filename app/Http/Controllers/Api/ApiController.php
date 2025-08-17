@@ -644,7 +644,7 @@ class ApiController extends Controller
                 // Get spin data (in case amount is stored in spins table)
                 $spin = $this->spin->where('id', $spin_id)->first();
 
-                $moneyToAdd = $spin ? $spin->spin_name : $amount;
+                $moneyToAdd = $spin->spin_name;
 
                 // Increment wallet safely
                 $user->wallet = $user->wallet + $moneyToAdd;
@@ -656,6 +656,7 @@ class ApiController extends Controller
                 'message' => 'Spin claim successfully',
                 'data'    => $create,
                 'wallet'  => $user->wallet, // return updated wallet
+                'moneyToAdd'  => $moneyToAdd, // return updated wallet
             ], 200);
 
         } catch (\Exception $ex) {
