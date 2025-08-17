@@ -657,6 +657,7 @@ class ApiController extends Controller
                     'spin'   => $create,
                     'wallet' => $user->wallet,
                     'newBalance' => $newBalance,
+                    'amountToAdd' => $amountToAdd,
                 ],
             ], 200);
 
