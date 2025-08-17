@@ -668,6 +668,52 @@ class ApiController extends Controller
         }
     }
 
+    public function fourteen(Request $request){
+        try {
+            if (!$request->isMethod('GET')) {
+                return response()->json(['message' => 'Invalid Method'], 405);
+            }
+
+            // ✅ Get token from headers
+            $token = $request->header('token');
+            $user = $this->users->where('token', $token)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid or missing token',
+                ], 401);
+            }
+
+            // ✅ Get current date (from request or default to today)
+            $date = $request->input('date') ?? now()->toDateString();
+
+            // ✅ Count user spins for that date
+            $spinsCount = $this->userSpinData
+                ->where('user_id', $user->id)
+                ->whereDate('created_at', $date)
+                ->count();
+
+            $limitReached = $spinsCount >= 5;
+
+            return response()->json([
+                'success'      => true,
+                'message'      => 'Spin count retrieved successfully',
+                'spins_today'  => $spinsCount,
+                'limit'        => 5,
+                'limitReached' => $limitReached,
+            ], 200);
+
+        } catch (\Exception $ex) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred',
+                'error'   => $ex->getMessage(),
+            ], 500);
+        }
+
+    }
+
 
 
 
