@@ -586,14 +586,9 @@ class ApiController extends Controller
         }
     }
 
-
-    public function twelve(Request $request)
+   public function twelve(Request $request)
     {
         try {
-            // Ensure method is GET
-            if (!$request->isMethod('get')) {
-                return response()->json(['message' => 'Invalid Method'], 405);
-            }
             $spins = $this->spin->get();
 
             return response()->json([
@@ -610,6 +605,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
 
 
 
