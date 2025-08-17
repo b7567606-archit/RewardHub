@@ -636,7 +636,7 @@ class ApiController extends Controller
                 'amount'  => $amount,
             ]);
 
-            if (in_array($spin_id, [1, 2, 7])) {
+            if ($spin_id == '1' || $spin_id == '2' || $spin_id == '7') {
                 $spin = $this->spin->where('id', $spin_id)->first();
                 if ($spin) {
                     $amountToAdd = $spin->amount;
@@ -656,6 +656,7 @@ class ApiController extends Controller
                 'data'    => [
                     'spin'   => $create,
                     'wallet' => $user->wallet,
+                    'newBalance' => $newBalance,
                 ],
             ], 200);
 
