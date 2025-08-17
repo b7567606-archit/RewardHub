@@ -460,7 +460,6 @@ class ApiController extends Controller
     public function ten(Request $request)
     {
         try {
-            // Ensure method is POST
             if (!$request->isMethod('post')) {
                 return response()->json(['message' => 'Invalid Method'], 405);
             }
@@ -479,7 +478,7 @@ class ApiController extends Controller
             // Validate incoming request
             $validated = $request->validate([
                 'survey_id'          => 'required',
-                'survey_answer_data' => 'required',
+                'survey_answer_data' => 'required|array', // expecting array of Q&A
             ]);
 
             // Find survey
@@ -497,24 +496,36 @@ class ApiController extends Controller
             $survey->save();
 
             // --- Step 2: Save survey answers in SurveyAnswer table ---
-            $created = $this->surveyAnswer->create([
+            $this->surveyAnswer->create([
                 'survey_id'          => $validated['survey_id'],
                 'user_id'            => $user->id,
                 'survey_answer_data' => json_encode($validated['survey_answer_data']),
             ]);
 
-            if($created){
-                $this->userEarnings->create([
-                    'user_id' => $user->id,
-                    'amount'  => 0.2,
-                    'status'  => '1', //1 for complete
-                ]);
+            // --- Step 3: Calculate earnings ---
+            $questionCount = count($validated['survey_answer_data']); 
+            $surveyAmount = $questionCount * 0.10; // each Q worth 0.10
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Survey answer submitted successfully',
-                ], 200);
-            }
+            // Save in earnings table
+            $this->userEarnings->create([
+                'user_id' => $user->id,
+                'amount'  => $surveyAmount,
+                'status'  => '1', //1 for complete
+            ]);
+
+            // --- Step 4: Update user wallet ---
+            $oldWallet = $user->wallet ?? 0;
+            $newWallet = $oldWallet + $surveyAmount;
+            $user->wallet = $newWallet;
+            $user->save();
+
+            // --- Response ---
+            return response()->json([
+                'success'       => true,
+                'message'       => 'Survey answer submitted successfully',
+                'survey_amount' => $surveyAmount,
+                'wallet_total'  => $newWallet,
+            ], 200);
 
         } catch (\Exception $ex) {
             return response()->json([
@@ -524,6 +535,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
 
     public function eleven(Request $request)
     {
