@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Survey;
 use App\Models\SurveyAnswer;
+use App\Models\UserEarnings;
 use App\Traits\ImageUpload;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -20,12 +21,14 @@ class ApiController extends Controller
     protected $users;
     protected $survey;
     protected $surveyAnswer;
+    protected $userEarnings;
 
-    public function __construct(Request $res , User $users , Survey $survey , SurveyAnswer $surveyAnswer){
+    public function __construct(Request $res , User $users , Survey $survey , SurveyAnswer $surveyAnswer , UserEarnings $userEarnings){
         $this->res = $res;
         $this->users = $users;
         $this->survey = $survey;
         $this->surveyAnswer = $surveyAnswer;
+        $this->userEarnings = $userEarnings;
     }
 
     public function check(){
@@ -494,16 +497,24 @@ class ApiController extends Controller
             $survey->save();
 
             // --- Step 2: Save survey answers in SurveyAnswer table ---
-            $this->surveyAnswer->create([
+            $created = $this->surveyAnswer->create([
                 'survey_id'          => $validated['survey_id'],
                 'user_id'            => $user->id,
                 'survey_answer_data' => json_encode($validated['survey_answer_data']),
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Survey answer submitted successfully',
-            ], 200);
+            if($created){
+                $this->userEarnings->create([
+                    'user_id' => $user->id,
+                    'amount'  => 0.2,
+                    'status'  => '1', //1 for complete
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Survey answer submitted successfully',
+                ], 200);
+            }
 
         } catch (\Exception $ex) {
             return response()->json([
