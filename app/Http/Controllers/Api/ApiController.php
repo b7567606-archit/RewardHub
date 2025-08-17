@@ -525,10 +525,10 @@ class ApiController extends Controller
         }
     }
 
-    public function eleven(Request $request){
-        try{
-
-              // Ensure method is get
+    public function eleven(Request $request)
+    {
+        try {
+            // Ensure method is GET
             if (!$request->isMethod('get')) {
                 return response()->json(['message' => 'Invalid Method'], 405);
             }
@@ -544,22 +544,25 @@ class ApiController extends Controller
                 ], 401);
             }
 
-            $getEarning  = $this->userEarnings->where([
-                    'user_id' => $user->id,
-                ])->get();
-            $getTotalEarning  = $this->userEarnings->where([
-                    'user_id' => $user->id,
-                ])->sum('amount');
+            // Fetch earnings for this user
+            $getEarning = $this->userEarnings
+                ->where('user_id', $user->id)
+                ->orderBy('id', 'desc')
+                ->get();
+
+            // Calculate total earning
+            $getTotalEarning = $this->userEarnings
+                ->where('user_id', $user->id)
+                ->sum('amount');
 
             return response()->json([
-                'success' => true,
-                'message' => 'User earnings retrieved successfully',
-                'data'    => $getEarning,
-                'total_earning' => $getTotalEarning,
+                'success'        => true,
+                'message'        => 'User earnings retrieved successfully',
+                'data'           => $getEarning,
+                'total_earning'  => $getTotalEarning,
             ], 200);
 
-        }
-         catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred',
@@ -567,6 +570,7 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
 
 
 
