@@ -525,7 +525,7 @@ class ApiController extends Controller
         }
     }
 
-    public function eleven(){
+    public function eleven(Request $request){
         try{
 
               // Ensure method is get
