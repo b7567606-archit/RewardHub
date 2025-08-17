@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Survey;
 use App\Models\SurveyAnswer;
 use App\Models\UserEarnings;
+use App\Models\Spin;
 use App\Traits\ImageUpload;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -22,13 +23,15 @@ class ApiController extends Controller
     protected $survey;
     protected $surveyAnswer;
     protected $userEarnings;
+    protected $spin;
 
-    public function __construct(Request $res , User $users , Survey $survey , SurveyAnswer $surveyAnswer , UserEarnings $userEarnings){
+    public function __construct(Request $res , User $users , Survey $survey , SurveyAnswer $surveyAnswer , UserEarnings $userEarnings , Spin $spin){
         $this->res = $res;
         $this->users = $users;
         $this->survey = $survey;
         $this->surveyAnswer = $surveyAnswer;
         $this->userEarnings = $userEarnings;
+        $this->spin = $spin;
     }
 
     public function check(){
@@ -584,6 +587,29 @@ class ApiController extends Controller
     }
 
 
+    public function twelve(Request $request)
+    {
+        try {
+            // Ensure method is GET
+            if (!$request->isMethod('get')) {
+                return response()->json(['message' => 'Invalid Method'], 405);
+            }
+            $spins = $this->spin->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Spins details retrieved successfully',
+                'data'    => $spins,
+            ], 200);
+
+        } catch (\Exception $ex) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred',
+                'error'   => $ex->getMessage(),
+            ], 500);
+        }
+    }
 
 
 
