@@ -36,4 +36,6 @@ Route::controller(ApiController::class)->group(function(){
     Route::any('user-send-survey-data' , 'ten');
     Route::any('see-user-earnings' , 'eleven');
     Route::any('spin-details', 'twelve');
+    Route::post('post-spin', 'thirteen');
+
 });

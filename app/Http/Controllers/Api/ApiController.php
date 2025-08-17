@@ -9,6 +9,7 @@ use App\Models\Survey;
 use App\Models\SurveyAnswer;
 use App\Models\UserEarnings;
 use App\Models\Spin;
+use App\Models\UserSpinData;
 use App\Traits\ImageUpload;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -24,14 +25,16 @@ class ApiController extends Controller
     protected $surveyAnswer;
     protected $userEarnings;
     protected $spin;
+    protected $UserSpinData;
 
-    public function __construct(Request $res , User $users , Survey $survey , SurveyAnswer $surveyAnswer , UserEarnings $userEarnings , Spin $spin){
+    public function __construct(Request $res , User $users , Survey $survey , SurveyAnswer $surveyAnswer , UserEarnings $userEarnings , Spin $spin , UserSpinData $UserSpinData){
         $this->res = $res;
         $this->users = $users;
         $this->survey = $survey;
         $this->surveyAnswer = $surveyAnswer;
         $this->userEarnings = $userEarnings;
         $this->spin = $spin;
+        $this->userSpinData = $UserSpinData;
     }
 
     public function check(){
@@ -595,6 +598,65 @@ class ApiController extends Controller
                 'success' => true,
                 'message' => 'Spins details retrieved successfully',
                 'data'    => $spins,
+            ], 200);
+
+        } catch (\Exception $ex) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred',
+                'error'   => $ex->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function thirteen(Request $request)
+    {
+        try {
+            if (!$request->isMethod('post')) {
+                return response()->json(['message' => 'Invalid Method'], 405);
+            }
+
+            $token = $request->header('token');
+            $user = $this->users->where('token', $token)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid or missing token',
+                ], 401);
+            }
+
+            $user_id = $user->id;
+            $spin_id = $request->input('spin_id');
+            $amount  = $request->input('amount');
+
+            $create = $this->userSpinData->create([
+                'user_id' => $user_id,
+                'spin_id' => $spin_id,
+                'amount'  => $amount,
+            ]);
+
+            if (in_array($spin_id, [1, 2, 7])) {
+                $spin = $this->spin->where('id', $spin_id)->first();
+                if ($spin) {
+                    $amountToAdd = $spin->amount;
+                    $newBalance = $user->wallet + $amountToAdd;
+
+                    $this->users->where('id', $user_id)->update([
+                        'wallet' => $newBalance,
+                    ]);
+
+                    $user->wallet = $newBalance;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Spin claim successfully',
+                'data'    => [
+                    'spin'   => $create,
+                    'wallet' => $user->wallet,
+                ],
             ], 200);
 
         } catch (\Exception $ex) {
