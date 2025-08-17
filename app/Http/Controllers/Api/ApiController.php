@@ -509,7 +509,7 @@ class ApiController extends Controller
                     'amount'  => 0.2,
                     'status'  => '1', //1 for complete
                 ]);
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Survey answer submitted successfully',
@@ -517,6 +517,49 @@ class ApiController extends Controller
             }
 
         } catch (\Exception $ex) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred',
+                'error'   => $ex->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function eleven(){
+        try{
+
+              // Ensure method is POST
+            if (!$request->isMethod('post')) {
+                return response()->json(['message' => 'Invalid Method'], 405);
+            }
+
+            // Get token from headers
+            $token = $request->header('token');
+            $user = $this->users->where('token', $token)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid or missing token',
+                ], 401);
+            }
+
+            $getEarning  = $this->userEarnings->where([
+                    'user_id' => $user->id,
+                ])->get();
+            $getTotalEarning  = $this->userEarnings->where([
+                    'user_id' => $user->id,
+                ])->sum('amount');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User earnings retrieved successfully',
+                'data'    => $getEarning,
+                'total_earning' => $getTotalEarning,
+            ], 200);
+
+        }
+         catch (\Exception $ex) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred',

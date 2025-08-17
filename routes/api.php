@@ -34,4 +34,5 @@ Route::controller(ApiController::class)->group(function(){
     Route::any('post-survey-data' , 'eight');
     Route::any('get-survey-data' , 'nine');
     Route::any('user-send-survey-data' , 'ten');
+    Route::any('see-user-earnings' , 'eleven');
 });
