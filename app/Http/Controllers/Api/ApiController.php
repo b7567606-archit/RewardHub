@@ -51,15 +51,15 @@ class ApiController extends Controller
 
             // Validate input (basic, no unique rule because we check manually)
             $validated = $request->validate([
-                'firstName' => 'required|string|max:255',
-                'lastName'  => 'required|string|max:255',
-                'email'     => 'required|email',
-                'number'    => 'required|string',
-                'country'   => 'nullable|string|max:255',
-                'state'     => 'nullable|string|max:255',
-                'city'      => 'nullable|string|max:255',
-                'age'       => 'nullable|integer|min:1',
-                'password'  => 'required|string|min:6',
+                'firstName' => 'required',
+                'lastName'  => 'required',
+                'email'     => 'required',
+                'number'    => 'required',
+                'country'   => 'nullable',
+                'state'     => 'nullable',
+                'city'      => 'nullable',
+                'age'       => 'nullable',
+                'password'  => 'required',
             ]);
 
             // 🔎 Check if email already exists
